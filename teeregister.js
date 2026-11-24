@@ -51,27 +51,33 @@
   }
   async function lookup(lat,lon,options={}) {
     const point=gpsToLest(lat,lon);
-    const sizes=options.sizes || [150,300,600];
+    // Search starts at the GPS point (0 m). Sizes are square widths, not minimum distances.
+    const sizes=options.sizes || [50,100,200,300,600];
     const maxFeatures=options.maxFeatures || 200;
-    const maxDistance=options.maxDistance ?? 50;
+    const maxDistance=options.maxDistance ?? 300;
     const fetcher=options.fetch || root.fetch.bind(root);
-    let lastResult=null;
+    const diagnostics=[];
+    let nearest=null;
     for (const size of sizes) {
       const url=buildUrl(point[0],point[1],size,maxFeatures,options.endpoint);
       let response;
       try { response=await fetcher(url,{method:'GET',mode:'cors',signal:options.signal}); }
-      catch (error) { throw new Error('WFS päring ebaõnnestus (võimalik CORS- või võrguviga): '+error.message); }
-      if (!response.ok) throw new Error('WFS HTTP '+response.status);
-      const data=await response.json();
-      if (!Array.isArray(data.features)) throw new Error('WFS vastus ei sisalda GeoJSON features massiivi.');
+      catch (error) { throw new Error('WFS võrgu- või CORS-viga ('+size+' m ala): '+error.message); }
+      if (!response.ok) throw new Error('WFS HTTP '+response.status+' ('+size+' m ala)');
+      let data;
+      try { data=await response.json(); } catch(e) { throw new Error('WFS vastus pole JSON: '+e.message); }
+      if (!Array.isArray(data.features)) throw new Error('WFS vastuses puudub features massiiv ('+size+' m ala)');
       const candidates=data.features.map(f=>evaluateFeature(f,point)).filter(Boolean).sort((a,b)=>a.distanceToRoad-b.distanceToRoad);
-      if (candidates.length) {
-        const result={...candidates[0],querySize:size,returnedFeatures:data.features.length,possiblyTruncated:data.features.length>=maxFeatures};
-        lastResult=result;
-        if (result.distanceToRoad<=maxDistance) return result;
-      }
+      diagnostics.push({size,features:data.features.length,valid:candidates.length,nearestDistance:candidates.length?candidates[0].distanceToRoad:null,truncated:data.features.length>=maxFeatures});
+      if (candidates.length && (!nearest || candidates[0].distanceToRoad<nearest.distanceToRoad))
+        nearest={...candidates[0],querySize:size,returnedFeatures:data.features.length,possiblyTruncated:data.features.length>=maxFeatures};
+      // Only accept a result once it is comfortably within the searched square.
+      // A smaller result near the edge may miss a closer road just outside the square.
+      if (nearest && nearest.distanceToRoad<=Math.min(25,size/2-1) && data.features.length<maxFeatures)
+        break;
     }
-    return lastResult && lastResult.distanceToRoad<=maxDistance ? lastResult : null;
+    return {result:nearest && nearest.distanceToRoad<=maxDistance ? nearest : null,
+      nearest, diagnostics, maxDistance, pointLest:point};
   }
   function formatAddress(result) {
     if (!result) return 'Teeaadressi ei leitud';

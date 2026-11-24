@@ -1,9 +1,13 @@
-# T2Pilt 0.3 – Teeregistri testversioon
+# T2Pilt 0.4
 
-Laadi **index.html** ja **teeregister.js** samasse GitHubi repositooriumi juurkausta. Avalda GitHub Pagesiga.
+GitHub Pages: laadi `index.html` ja `teeregister.js` repositooriumi juurkausta. Failid peavad olema samas kaustas. Veebileht vajab HTTPS-i, kaamera ja asukoha luba ning internetti. `proj4` laetakse CDN-ist.
 
-Rakendus kasutab kaamerat, GPS-i, OSM Nominatimi ning Teeregistri WFS 1.0.0 teenust. `proj4` laaditakse jsDelivri CDN-ist. Teeregister küsib 150 × 150 m ala ja vajaduse korral 300 × 300 või 600 × 600 m ala. Lähima tee maksimaalne kaugus on 50 m.
+## Teeregistri otsing
 
-**Tähelepanu:** brauseri CORS-ligipääs WFS-ile ei ole kinnitatud. Kui Teeregistri päring annab CORS-vea, on vaja sama päritolu puhverserverit või muud lubatud API-lahendust. Tee kilometraaž on arvutuslik, sest geomeetria suunda pole ametliku kilometraažiga võrreldud. Maa- ja Ruumiameti teenus on endiselt ühendamata.
+Otsing algab GPS-asukohast (0 m) ja kasutab järjest 50 x 50, 100 x 100, 200 x 200, 300 x 300 ja 600 x 600 m BBOX-päringuid (WFS 1.0.0, EPSG:3301). Tegemist on **ruutude laiustega**, mitte tee minimaalse kaugusega. Lähima tee kaugus mõõdetakse meetrites tee telgjoonest. Maksimaalne lubatud kaugus on vaikimisi 300 m; kaugeid tulemusi ei kuvata kindla teeaadressina.
 
-Testi HTTPS-aadressil, luba kaamera ja asukoht, vajuta „Käivita kaamera ja GPS“ ning kontrolli Teeregistri tulemust. Salvestatud JPG sisaldab sisse lülitatud teabevälju.
+Ava rakenduses **Teeregistri diagnostika**, et näha GPS-i täpsust, teisendatud koordinaate, iga päringu objektide arvu ja lähima tee kaugust. Võrgu- ja CORS-vead kuvatakse eraldi.
+
+## Tähtsad piirangud
+
+Tee kilomeeter on geomeetriast arvutatud hinnang. Teeosa geomeetria suunda ja ametlikku kilometraaži pole veel kontrollitud. GPS-i ebatäpsus võib anda vale lähima tee, eriti ristmikel ja paralleelsete teede juures. WFS-i CORS-ligipääs GitHub Pagesi brauserist vajab kohapeal testimist. Maa- ja Ruumiameti teenus ei ole ühendatud. OpenStreetMapi Nominatimi avaliku teenuse kasutuspiiranguid tuleb järgida.
