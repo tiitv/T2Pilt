@@ -11,3 +11,7 @@ Ava rakenduses **Teeregistri diagnostika**, et näha GPS-i täpsust, teisendatud
 ## Tähtsad piirangud
 
 Tee kilomeeter on geomeetriast arvutatud hinnang. Teeosa geomeetria suunda ja ametlikku kilometraaži pole veel kontrollitud. GPS-i ebatäpsus võib anda vale lähima tee, eriti ristmikel ja paralleelsete teede juures. WFS-i CORS-ligipääs GitHub Pagesi brauserist vajab kohapeal testimist. Maa- ja Ruumiameti teenus ei ole ühendatud. OpenStreetMapi Nominatimi avaliku teenuse kasutuspiiranguid tuleb järgida.
+
+
+## Versioon 0.4.1
+Parandatud null-vastuse käsitlemine: report.result kasutamine ei põhjusta enam arusaamatut TypeError-viga. Lisatud teeregister.js vahemälu vältiv versiooniparameeter. Pärast üleslaadimist tee telefonis lehele täielik värskendus. Kui päring ikka ebaõnnestub, kopeeri diagnostika täpne tekst.

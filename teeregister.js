@@ -83,5 +83,5 @@
     if (!result) return 'Teeaadressi ei leitud';
     return `${result.name || 'Tee'} (nr ${result.teeNumber}), km ${result.kilometre.toFixed(3)} (arvutuslik)`;
   }
-  root.T2Teeregister={lookup,gpsToLest,buildUrl,closestPointOnLine,evaluateFeature,formatAddress};
+  root.T2Teeregister={version:'0.4.1',lookup,gpsToLest,buildUrl,closestPointOnLine,evaluateFeature,formatAddress};
 })(typeof window !== 'undefined' ? window : globalThis);
